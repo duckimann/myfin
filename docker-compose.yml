@@ -16,8 +16,8 @@ services:
     image: ghcr.io/afaneca/myfin-api:latest
     container_name: myfin-api
     restart: unless-stopped
-    ports:
-      - "8081:3001"
+    # ports:
+    #   - "8081:3001"
     environment:
     # Database Configuration
       - DB_NAME=myfin
@@ -43,6 +43,9 @@ services:
 
   myfin-frontend:
     image: ghcr.io/afaneca/myfin:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: myfin-frontend
     restart: unless-stopped
     ports:
@@ -51,7 +54,7 @@ services:
       myfin-api:
         condition: service_healthy
     environment:
-      - VITE_MYFIN_BASE_API_URL=http://localhost:8081
+      - VITE_MYFIN_BASE_API_URL=http://myfin-api:3001/ # the trailing slash is important
 
 volumes:
   db_data:

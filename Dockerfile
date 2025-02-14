@@ -12,8 +12,8 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-ARG VITE_MYFIN_BASE_API_URL
-ENV VITE_MYFIN_BASE_API_URL="myfin-api-url-placeholder"
+# Add default api proxy path
+ENV VITE_MYFIN_BASE_API_URL=/api
 
 # Build the app
 RUN npm run build
@@ -37,14 +37,7 @@ LABEL org.opencontainers.image.source="https://github.com/afaneca/myfin"
 # Copy built files from build stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copy nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Create startup script
-RUN echo '#!/bin/sh' > /start.sh && \
-    echo 'find /usr/share/nginx/html -type f -name "*.js" -exec sed -i "s|myfin-api-url-placeholder|$VITE_MYFIN_BASE_API_URL|g" {} +' >> /start.sh && \
-    echo "nginx -g 'daemon off;'" >> /start.sh && \
-    chmod +x /start.sh
+COPY docker-entrypoint.sh /
 
 # Expose port 80
 EXPOSE 80
@@ -54,4 +47,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD wget -qO- http://localhost:80/ | grep -q '<title>MyFin Budget</title>' || exit 1
 
 # Start nginx
-CMD ["/start.sh"]
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
