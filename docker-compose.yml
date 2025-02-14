@@ -16,8 +16,6 @@ services:
     image: ghcr.io/afaneca/myfin-api:latest
     container_name: myfin-api
     restart: unless-stopped
-    # ports:
-    #   - "8081:3001"
     environment:
     # Database Configuration
       - DB_NAME=myfin
@@ -42,10 +40,7 @@ services:
         condition: service_healthy
 
   myfin-frontend:
-    image: ghcr.io/afaneca/myfin:latest
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/duckimann/myfin:latest
     container_name: myfin-frontend
     restart: unless-stopped
     ports:
